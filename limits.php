@@ -13,7 +13,7 @@ class speedLimit
 	protected function collect()
 	{
 		$toCorrect = array();
-		$req = new rXMLRPCRequest( 
+		$req = new rXMLRPCRequest(
 			new rXMLRPCCommand( "d.multicall", array(
 			        "default",
 				getCmd("d.get_hash="),
@@ -44,10 +44,10 @@ class speedLimit
 		{
 			$req->addCommand(new rXMLRPCCommand( "branch", array
 			(
-				$hash, 
-				getCmd("d.is_active="), 
-				getCmd('cat').'=$'.getCmd("d.stop").'=,$'.getCmd("d.set_throttle_name=").'slimit,$'.getCmd('d.start='), 
-				getCmd('d.set_throttle_name=').'slimit' 
+				$hash,
+				getCmd("d.is_active="),
+				getCmd('cat').'=$'.getCmd("d.stop").'=,$'.getCmd("d.set_throttle_name=").'slimit,$'.getCmd('d.start='),
+				getCmd('d.set_throttle_name=').'slimit'
 			)));
 		}
 		if($req->getCommandsCount())
@@ -62,10 +62,10 @@ class speedLimit
 			trackersLimit::trace('Remove throttle restriction from '.$hash);
 			$req->addCommand(new rXMLRPCCommand( "branch", array
 			(
-				$hash, 
-				getCmd("d.is_active="), 
-				getCmd('cat').'=$'.getCmd("d.stop").'=,$'.getCmd("d.set_throttle_name=").',$'.getCmd('d.start='), 
-				getCmd('d.set_throttle_name=') 
+				$hash,
+				getCmd("d.is_active="),
+				getCmd('cat').'=$'.getCmd("d.stop").'=,$'.getCmd("d.set_throttle_name=").',$'.getCmd('d.start='),
+				getCmd('d.set_throttle_name=')
 			)));
 		}
 		else
@@ -74,10 +74,10 @@ class speedLimit
 			trackersLimit::trace('Add throttle restriction to '.$hash);
 			$req->addCommand(new rXMLRPCCommand( "branch", array
 			(
-				$hash, 
-				getCmd("d.is_active="), 
-				getCmd('cat').'=$'.getCmd("d.stop").'=,$'.getCmd("d.set_throttle_name=").'slimit,$'.getCmd('d.start='), 
-				getCmd('d.set_throttle_name=').'slimit' 
+				$hash,
+				getCmd("d.is_active="),
+				getCmd('cat').'=$'.getCmd("d.stop").'=,$'.getCmd("d.set_throttle_name=").'slimit,$'.getCmd('d.start='),
+				getCmd('d.set_throttle_name=').'slimit'
 			)));
 		}
 	}
@@ -109,7 +109,6 @@ class speedLimit
 		}
 		return(false);
 	}
-	
 }
 
 class ratioLimit
@@ -181,7 +180,7 @@ class trackersLimit
 	protected $rl;
 	protected $trackers = array();
 
-	public function trackersLimit()	
+	public function trackersLimit()
 	{
 		$this->sl = new speedLimit();
 		$this->rl = new ratioLimit();
@@ -193,19 +192,19 @@ class trackersLimit
 		global $preventUpload;
 		if( $this->sl->init() && $this->rl->init() )
 		{
-			$req = new rXMLRPCRequest( 
-				rTorrentSettings::get()->getOnInsertCommand( array('_plimits'.getUser(), 
+			$req = new rXMLRPCRequest(
+				rTorrentSettings::get()->getOnInsertCommand( array('_plimits'.getUser(),
 					getCmd('execute.nothrow').'={'.getPHP().','.dirname(__FILE__).'/update.php,"$'.
 					getCmd('t.multicall').'=$'.getCmd('d.get_hash').'=,'.getCmd('t.get_url').'=,'.getCmd('cat').'=#",$'.getCmd('d.get_hash').'=,insert,'.getLogin().'}' ) ) );
 
 			if($preventUpload)
 			{
 				$req->addCommand(
-					rTorrentSettings::get()->getOnFinishedCommand(array('_plimits1'.getUser(), 
+					rTorrentSettings::get()->getOnFinishedCommand(array('_plimits1'.getUser(),
 					getCmd('execute.nothrow').'={'.getPHP().','.dirname(__FILE__).'/update.php,"$'.
 					getCmd('t.multicall').'=$'.getCmd('d.get_hash').'=,'.getCmd('t.get_url').'=,'.getCmd('cat').'=#",$'.getCmd('d.get_hash').'=,finish,'.getLogin().'}' ) ) );
 				$req->addCommand(
-					rTorrentSettings::get()->getOnResumedCommand(array('_plimits2'.getUser(), 
+					rTorrentSettings::get()->getOnResumedCommand(array('_plimits2'.getUser(),
 					getCmd('execute.nothrow').'={'.getPHP().','.dirname(__FILE__).'/update.php,"$'.
 					getCmd('t.multicall').'=$'.getCmd('d.get_hash').'=,'.getCmd('t.get_url').'=,'.getCmd('cat').'=#",$'.getCmd('d.get_hash').'=,resume,'.getLogin().'}' ) ) );
 			}
@@ -231,7 +230,7 @@ class trackersLimit
 			$this->trackers = explode("\n", $results);
 			return(true);
 		}
-		return(false);	
+		return(false);
 	}
 
 	public function load()
@@ -249,18 +248,19 @@ class trackersLimit
 
 	public function checkPublic( $trackers )
 	{
-		if( $trackers==="dht://#" )
+		$dht = "dht://";
+		$dhtEnabled = strpos( $trackers, $dht );
+		if($dhtEnabled!==false)
 			return(true);
 		else
 			foreach( $this->trackers as $trk )
-				if( stristr( $trackers, $trk )!==false )
+				if( ! empty( $trk ) && stristr( $trackers, $trk )!==false )
 					return(true);
-			return(false);
+		return(false);
 	}
 
 	public function check()
 	{
-//		self::trace('Check existing torrents.');
 		if($this->loadLocal())
 		{
 			$req =  new rXMLRPCRequest(
