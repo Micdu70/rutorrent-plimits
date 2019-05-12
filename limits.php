@@ -248,14 +248,11 @@ class trackersLimit
 
 	public function checkPublic( $trackers )
 	{
-		$dht = "dht://";
-		$dhtEnabled = strpos( $trackers, $dht );
-		if($dhtEnabled!==false)
+		if( strpos( $trackers, "dht://" )!==false )
 			return(true);
-		else
-			foreach( $this->trackers as $trk )
-				if( ! empty( $trk ) && stristr( $trackers, $trk )!==false )
-					return(true);
+		foreach( $this->trackers as $trk )
+			if( ! empty( $trk ) && stristr( $trackers, $trk )!==false )
+				return(true);
 		return(false);
 	}
 
