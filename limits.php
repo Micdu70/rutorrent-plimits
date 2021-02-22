@@ -190,13 +190,12 @@ class trackersLimit
 	{
 		global $trackersCheckInterval;
 		global $preventUpload;
-		if( $this->sl->init() && $this->rl->init() )
+		if( $this->sl && $this->rl )
 		{
 			$req = new rXMLRPCRequest(
 				rTorrentSettings::get()->getOnInsertCommand( array('_plimits'.getUser(),
 					getCmd('execute.nothrow').'={'.getPHP().','.dirname(__FILE__).'/update.php,"$'.
 					getCmd('t.multicall').'=$'.getCmd('d.get_hash').'=,'.getCmd('t.get_url').'=,'.getCmd('cat').'=#",$'.getCmd('d.get_hash').'=,insert,'.getLogin().'}' ) ) );
-
 			if($preventUpload)
 			{
 				$req->addCommand(
@@ -208,7 +207,6 @@ class trackersLimit
 					getCmd('execute.nothrow').'={'.getPHP().','.dirname(__FILE__).'/update.php,"$'.
 					getCmd('t.multicall').'=$'.getCmd('d.get_hash').'=,'.getCmd('t.get_url').'=,'.getCmd('cat').'=#",$'.getCmd('d.get_hash').'=,resume,'.getLogin().'}' ) ) );
 			}
-
 			if($req->success())
 			{
 				$this->check();
