@@ -180,17 +180,15 @@ class trackersLimit
 	protected $rl;
 	protected $trackers = array();
 
-	public function trackersLimit()
-	{
-		$this->sl = new speedLimit();
-		$this->rl = new ratioLimit();
-	}
-
 	public function init()
 	{
 		global $trackersCheckInterval;
 		global $preventUpload;
-		if( $this->sl && $this->rl )
+
+		$this->sl = new speedLimit();
+		$this->rl = new ratioLimit();
+
+		if( $this->sl->init() && $this->rl->init() )
 		{
 			$req = new rXMLRPCRequest(
 				rTorrentSettings::get()->getOnInsertCommand( array('_plimits'.getUser(),
