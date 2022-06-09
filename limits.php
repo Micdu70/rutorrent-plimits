@@ -4,7 +4,7 @@ require_once( dirname(__FILE__)."/../../php/xmlrpc.php" );
 require_once( dirname(__FILE__)."/../../php/Snoopy.class.inc");
 require_once( dirname(__FILE__)."/../../php/cache.php");
 require_once( dirname(__FILE__)."/../../php/settings.php");
-eval(getPluginConf('plimits'));
+eval( FileUtil::getPluginConf('plimits') );
 
 @define('MAX_SPEED', 10, true);
 
@@ -191,25 +191,25 @@ class trackersLimit
 		if( $this->sl->init() && $this->rl->init() )
 		{
 			$req = new rXMLRPCRequest(
-				rTorrentSettings::get()->getOnInsertCommand( array('_plimits'.getUser(),
-					getCmd('execute.nothrow').'={'.getPHP().','.dirname(__FILE__).'/update.php,"$'.
-					getCmd('t.multicall').'=$'.getCmd('d.get_hash').'=,'.getCmd('t.get_url').'=,'.getCmd('cat').'=#",$'.getCmd('d.get_hash').'=,insert,'.getLogin().'}' ) ) );
+				rTorrentSettings::get()->getOnInsertCommand( array('_plimits'.User::getUser(),
+					getCmd('execute.nothrow').'={'.Utility::getPHP().','.dirname(__FILE__).'/update.php,"$'.
+					getCmd('t.multicall').'=$'.getCmd('d.get_hash').'=,'.getCmd('t.get_url').'=,'.getCmd('cat').'=#",$'.getCmd('d.get_hash').'=,insert,'.User::getLogin().'}' ) ) );
 			if($preventUpload)
 			{
 				$req->addCommand(
-					rTorrentSettings::get()->getOnFinishedCommand(array('_plimits1'.getUser(),
-					getCmd('execute.nothrow').'={'.getPHP().','.dirname(__FILE__).'/update.php,"$'.
-					getCmd('t.multicall').'=$'.getCmd('d.get_hash').'=,'.getCmd('t.get_url').'=,'.getCmd('cat').'=#",$'.getCmd('d.get_hash').'=,finish,'.getLogin().'}' ) ) );
+					rTorrentSettings::get()->getOnFinishedCommand(array('_plimits1'.User::getUser(),
+					getCmd('execute.nothrow').'={'.Utility::getPHP().','.dirname(__FILE__).'/update.php,"$'.
+					getCmd('t.multicall').'=$'.getCmd('d.get_hash').'=,'.getCmd('t.get_url').'=,'.getCmd('cat').'=#",$'.getCmd('d.get_hash').'=,finish,'.User::getLogin().'}' ) ) );
 				$req->addCommand(
-					rTorrentSettings::get()->getOnResumedCommand(array('_plimits2'.getUser(),
-					getCmd('execute.nothrow').'={'.getPHP().','.dirname(__FILE__).'/update.php,"$'.
-					getCmd('t.multicall').'=$'.getCmd('d.get_hash').'=,'.getCmd('t.get_url').'=,'.getCmd('cat').'=#",$'.getCmd('d.get_hash').'=,resume,'.getLogin().'}' ) ) );
+					rTorrentSettings::get()->getOnResumedCommand(array('_plimits2'.User::getUser(),
+					getCmd('execute.nothrow').'={'.Utility::getPHP().','.dirname(__FILE__).'/update.php,"$'.
+					getCmd('t.multicall').'=$'.getCmd('d.get_hash').'=,'.getCmd('t.get_url').'=,'.getCmd('cat').'=#",$'.getCmd('d.get_hash').'=,resume,'.User::getLogin().'}' ) ) );
 			}
 			if($req->success())
 			{
 				$this->check();
 				$req = new rXMLRPCRequest( rTorrentSettings::get()->getScheduleCommand('plimits',$trackersCheckInterval,
-					getCmd('execute').'={sh,-c,'.escapeshellarg(getPHP()).' '.escapeshellarg(dirname(__FILE__).'/check.php').' '.escapeshellarg(getUser()).' &}' ) );
+					getCmd('execute').'={sh,-c,'.escapeshellarg(Utility::getPHP()).' '.escapeshellarg(dirname(__FILE__).'/check.php').' '.escapeshellarg(User::getUser()).' &}' ) );
 				return( $req->success() );
 			}
 		}
@@ -219,7 +219,9 @@ class trackersLimit
 	public function loadLocal()
 	{
 		$this->trackers = array();
-		$fname = getSettingsPath()."/trackers.lst";
+		$fname = FileUtil::getSettingsPath()."/trackers.lst";
+		if(!is_readable($fname))
+			$fname = dirname(__FILE__)."/trackers.lst";
 		$results = file_get_contents($fname);
 		if($results!==false)
 		{
@@ -232,7 +234,9 @@ class trackersLimit
 	public function load()
 	{
 		global $profileMask;
-		$fname = getSettingsPath()."/trackers.lst";
+		$fname = FileUtil::getSettingsPath()."/trackers.lst";
+		if(!is_readable($fname))
+			$fname = dirname(__FILE__)."/trackers.lst";
 		$ftime = filemtime($fname);
 		$client = new Snoopy();
 		$this->trackers = array();
@@ -285,12 +289,12 @@ class trackersLimit
 		global $log_debug;
 		if($log_debug)
 		{
-			toLog( $msg );
+			FileUtil::toLog( $msg );
 			if($err)
 			{
 				$dbg = error_get_last();
 				if($dbg)
-					toLog(print_r($dbg,true));
+					FileUtil::toLog(print_r($dbg,true));
 			}
 		}
 	}
